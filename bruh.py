@@ -31,9 +31,8 @@ def parse_sources():
 
 @app.route('/')
 def say_hello():
-    with ThreadPoolExecutor (max_workers=None) as executor:
-        executor.submit(parse_sources)
-    return "hello its working"
+    parse_sources()
+    return "done"
 
 
 @app.route("/parse-sources", methods=['GET', 'POST'])

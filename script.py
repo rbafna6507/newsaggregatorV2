@@ -66,9 +66,13 @@ class Article:
         elif source_url == "https://www.economist.com/":
             self.parse_article('h1', None, None, 'p', 'class', 'article__description')
         elif source_url == "https://www.bbc.com":
-            self.parse_article('h1', 'class', 'css-1c1994u-StyledHeading e1fj1fc10', 'p', None, None)
-            if self.headline == None or self.summary == None:
-                self.parse_article('div', 'class', 'article-headline__text b-reith-sans-font b-font-weight-300', 'div', 'class', 'article__intro')
+            try:
+                self.parse_article('h1', 'class', 'css-1c1994u-StyledHeading e1fj1fc10', 'p', None, None)
+                if self.headline == None or self.summary == None:
+                    self.parse_article('div', 'class', 'article-headline__text b-reith-sans-font b-font-weight-300', 'div', 'class', 'article__intro')
+            except:
+                    self.headline = None
+                    self.summary= None
         else:
             print("WHoops")
 

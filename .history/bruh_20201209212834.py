@@ -1,7 +1,7 @@
 from flask import Flask
 import requests
 from bs4 import BeautifulSoup
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import re
 import time
 import pymongo
@@ -37,6 +37,6 @@ def say_hello():
 
 @app.route("/parse-sources", methods=['GET', 'POST'])
 def parse_sources_runner():
-    with ThreadPoolExecutor (max_workers=None) as executor:
-        executor.map(parse_sources)
+    with ThreadPoolExecutor.as_completed (max_workers=None) as executor:
+        executor.submit(parse_sources)
     return "blah"

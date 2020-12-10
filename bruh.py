@@ -8,10 +8,6 @@ import pymongo
 import dns
 from paneer import parse_sources
 
-client = pymongo.MongoClient("mongodb+srv://bruhuser:griffith@cluster0.ccamn.mongodb.net/articles?retryWrites=true&w=majority")
-db = client.get_database('articles')
-collections = [db.nytimes, db.reuters, db.wired, db.economist, db.bbc]
-
 app = Flask(__name__)
 
 @app.route('/parse')
@@ -23,17 +19,7 @@ executor = ThreadPoolExecutor (max_workers=None)
 
 @app.route("/", methods=['GET', 'POST'])
 def parse_sources_runner():
-    # from threading import Thread
-    # heavy_thread = Thread(
-    #     target=parse_sources,
-    # )
-    # heavy_thread.daemon = True
-    # heavy_thread.start()
-
-    # with ThreadPoolExecutor (max_workers=None) as executor:
-    #     executor.map(parse_sources)
     executor.submit(parse_sources)
-
     return "blah"
 
 

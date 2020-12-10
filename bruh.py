@@ -37,6 +37,17 @@ def say_hello():
 
 @app.route("/parse-sources", methods=['GET', 'POST'])
 def parse_sources_runner():
-    with ThreadPoolExecutor (max_workers=None) as executor:
-        executor.map(parse_sources)
+    from threading import Thread
+    heavy_thread = Thread(
+        target=parse_sources,
+    )
+    heavy_thread.daemon = True
+    heavy_thread.start()
+
+    # with ThreadPoolExecutor (max_workers=None) as executor:
+    #     executor.map(parse_sources)
     return "blah"
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000,debug=True)

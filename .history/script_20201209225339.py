@@ -6,10 +6,6 @@ import time
 import pymongo
 import dns
 
-client = pymongo.MongoClient("mongodb+srv://bruhuser:griffith@cluster0.ccamn.mongodb.net/articles?retryWrites=true&w=majority")
-db = client.get_database('articles')
-collections = [db.nytimes, db.reuters, db.wired, db.economist, db.bbc]
-
 class Queue():
     def __init__(self, list):
         self.list = list
@@ -63,7 +59,7 @@ class Article:
         self.summary = None
 
         if self.source_url == "http://www.nytimes.com/":
-            self.parse_article('h1', None, None, 'p', "class", 'evys1bk0')
+            self.parse_article('div', 'class', 'css-1vkm6nb', 'p', "class", 'css-1smgwul e1wiw3jv0')
 
         elif source_url == "https://www.reuters.com/":
             self.parse_article('h1', 'class', 'Headline-headline-2FXIq Headline-black-OogpV ArticleHeader-headline-NlAqj', 'p', 'class', 'Paragraph-paragraph-2Bgue ArticleBody-para-TD_9x')
@@ -79,11 +75,12 @@ class Article:
                 self.parse_article('h1', 'class', 'css-1c1994u-StyledHeading e1fj1fc10', 'p', None, None)
                 if self.headline == None or self.summary == None:
                     self.parse_article('div', 'class', 'article-headline__text b-reith-sans-font b-font-weight-300', 'div', 'class', 'article__intro')
-                    if self.headline == None or self.summary == None:
-                        self.parse_article('h1', None, None, 'b', 'class', 'css-14iz86j-BoldText e5tfeyi0')
+
             except:
                     self.headline = None
                     self.summary= None
+        else:
+            print("WHoops")
 
 
 
@@ -101,30 +98,11 @@ class Article:
                 self.headline = None
                 self.summary = None
 
-def upload_to_mongo(list_of_articles, collection):
+def upload_mongo(list_of_articles, collection):
     for article in list_of_articles:
         if article.headline == None or article.summary == None:
-            list_of_articles.remove(article)
+            del(article)
     list_of_articles = Queue(list_of_articles)
     for inputted_article in collection.find():
         articlez = list_of_articles.dequeue()
         collection.update_one(inputted_article, {'$set': {'Headline': articlez.headline, 'Info':articlez.summary,'Link':articlez.url}})
-
-def parse_sources():
-    sources = ['http://www.nytimes.com/', 'https://www.reuters.com/', 'https://www.wired.com', 'https://www.economist.com/', 'https://www.bbc.com']
-
-    for source in sources:
-        index = sources.index(source)
-        source_obj = Source(source)
-        list_of_article_urls = source_obj.articles
-        list_of_articles = []
-
-        for url in list_of_article_urls:
-            article = Article(url, source)
-            list_of_articles.append(article)
-            print(article.url)
-            print(article.headline)
-            print(article.summary)
-            print("\n")
-
-        upload_to_mongo(list_of_articles, collections[index])

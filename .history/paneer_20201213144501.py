@@ -79,8 +79,7 @@ class Article:
                 self.parse_article('h1', 'class', 'css-1c1994u-StyledHeading e1fj1fc10', 'p', None, None)
                 if self.headline == None or self.summary == None:
                     self.parse_article('div', 'class', 'article-headline__text b-reith-sans-font b-font-weight-300', 'div', 'class', 'article__intro')
-                    if self.headline == None or self.summary == None:
-                        self.parse_article('h1', None, None, 'b', 'class', 'css-14iz86j-BoldText e5tfeyi0')
+
             except:
                     self.headline = None
                     self.summary= None

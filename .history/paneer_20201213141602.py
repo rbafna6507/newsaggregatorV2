@@ -33,8 +33,8 @@ class Source:
             self.get_article_urls_from_source('card-component', None, None)
         elif source_url == "https://www.economist.com/":
             self.get_article_urls_from_source('teaser', 'class', 'headline-link')
-        elif source_url == "https://www.bbc.com":
-            self.get_article_urls_from_source('media__content', 'class', 'media__link')
+        elif source_url == "https://www.bbc.com/news":
+            self.get_article_urls_from_source('gs-c-promo-body', 'class', 'gs-c-promo-heading gs-o-faux-block-link__overlay-link')
 
     def get_article_urls_from_source(self, find_tag1, link1, link2):
         # do something with beautiful soup to return list of urls for article
@@ -74,13 +74,12 @@ class Article:
         elif source_url == "https://www.economist.com/":
             self.parse_article('h1', None, None, 'p', 'class', 'article__description')
 
-        elif source_url == "https://www.bbc.com":
+        elif source_url == "https://www.bbc.com/news":
             try:
                 self.parse_article('h1', 'class', 'css-1c1994u-StyledHeading e1fj1fc10', 'p', None, None)
                 if self.headline == None or self.summary == None:
                     self.parse_article('div', 'class', 'article-headline__text b-reith-sans-font b-font-weight-300', 'div', 'class', 'article__intro')
-                    if self.headline == None or self.summary == None:
-                        self.parse_article('h1', None, None, 'b', 'class', 'css-14iz86j-BoldText e5tfeyi0')
+
             except:
                     self.headline = None
                     self.summary= None

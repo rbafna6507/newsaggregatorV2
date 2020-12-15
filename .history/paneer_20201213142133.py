@@ -33,8 +33,8 @@ class Source:
             self.get_article_urls_from_source('card-component', None, None)
         elif source_url == "https://www.economist.com/":
             self.get_article_urls_from_source('teaser', 'class', 'headline-link')
-        elif source_url == "https://www.bbc.com":
-            self.get_article_urls_from_source('media__content', 'class', 'media__link')
+        elif source_url == "https://www.bbc.com/news":
+            self.get_article_urls_from_source('gel-layout__item', 'class', 'gs-c-promo-heading')
 
     def get_article_urls_from_source(self, find_tag1, link1, link2):
         # do something with beautiful soup to return list of urls for article
@@ -46,7 +46,7 @@ class Source:
             if self.source_url in ("https://www.wsj.com/news/latest-headlines?mod=wsjheader", "http://techcrunch.com", "https://www.theverge.com/") and article != None:
                 article = article['href']
             elif self.source_url == "https://www.bbc.com/news":
-                article = "https://bbc.com" + article['href']
+                article = "https://bbc.com/news" + article['href']
             elif article != None:
                 article = self.source_url + article['href']
                 regex = re.compile(self.source_url + self.source_url)
@@ -74,13 +74,12 @@ class Article:
         elif source_url == "https://www.economist.com/":
             self.parse_article('h1', None, None, 'p', 'class', 'article__description')
 
-        elif source_url == "https://www.bbc.com":
+        elif source_url == "https://www.bbc.com/news":
             try:
                 self.parse_article('h1', 'class', 'css-1c1994u-StyledHeading e1fj1fc10', 'p', None, None)
                 if self.headline == None or self.summary == None:
                     self.parse_article('div', 'class', 'article-headline__text b-reith-sans-font b-font-weight-300', 'div', 'class', 'article__intro')
-                    if self.headline == None or self.summary == None:
-                        self.parse_article('h1', None, None, 'b', 'class', 'css-14iz86j-BoldText e5tfeyi0')
+
             except:
                     self.headline = None
                     self.summary= None
@@ -111,7 +110,7 @@ def upload_to_mongo(list_of_articles, collection):
         collection.update_one(inputted_article, {'$set': {'Headline': articlez.headline, 'Info':articlez.summary,'Link':articlez.url}})
 
 def parse_sources():
-    sources = ['http://www.nytimes.com/', 'https://www.reuters.com/', 'https://www.wired.com', 'https://www.economist.com/', 'https://www.bbc.com']
+    sources = ['http://www.nytimes.com/', 'https://www.reuters.com/', 'https://www.wired.com', 'https://www.economist.com/', 'https://www.bbc.com/news']
 
     for source in sources:
         index = sources.index(source)

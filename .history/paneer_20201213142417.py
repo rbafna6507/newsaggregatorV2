@@ -6,6 +6,10 @@ import time
 import pymongo
 import dns
 
+client = pymongo.MongoClient("mongodb+srv://bruhuser:griffith@cluster0.ccamn.mongodb.net/articles?retryWrites=true&w=majority")
+db = client.get_database('articles')
+collections = [db.nytimes, db.reuters, db.wired, db.economist, db.bbc]
+
 class Queue():
     def __init__(self, list):
         self.list = list
@@ -29,8 +33,8 @@ class Source:
             self.get_article_urls_from_source('card-component', None, None)
         elif source_url == "https://www.economist.com/":
             self.get_article_urls_from_source('teaser', 'class', 'headline-link')
-        elif source_url == "https://www.bbc.com":
-            self.get_article_urls_from_source('media__content', 'class', 'media__link')
+        elif source_url == "https://www.bbc.com/news":
+            self.get_article_urls_from_source('nw-c-top-stories__secondary-item', 'class', 'gs-c-promo-heading')
 
     def get_article_urls_from_source(self, find_tag1, link1, link2):
         # do something with beautiful soup to return list of urls for article
@@ -42,7 +46,7 @@ class Source:
             if self.source_url in ("https://www.wsj.com/news/latest-headlines?mod=wsjheader", "http://techcrunch.com", "https://www.theverge.com/") and article != None:
                 article = article['href']
             elif self.source_url == "https://www.bbc.com/news":
-                article = "https://bbc.com" + article['href']
+                article = "https://bbc.com/news" + article['href']
             elif article != None:
                 article = self.source_url + article['href']
                 regex = re.compile(self.source_url + self.source_url)
@@ -57,24 +61,28 @@ class Article:
         self.source_url = source_url
         self.headline = None
         self.summary = None
+
         if self.source_url == "http://www.nytimes.com/":
-            self.parse_article('div', 'class', 'css-1vkm6nb', 'p', "class", 'css-1smgwul e1wiw3jv0')
+            self.parse_article('h1', None, None, 'p', "class", 'evys1bk0')
+
         elif source_url == "https://www.reuters.com/":
             self.parse_article('h1', 'class', 'Headline-headline-2FXIq Headline-black-OogpV ArticleHeader-headline-NlAqj', 'p', 'class', 'Paragraph-paragraph-2Bgue ArticleBody-para-TD_9x')
+
         elif source_url == "https://www.wired.com":
             self.parse_article('h1', None, None, 'div', 'class', 'content-header__dek')
+
         elif source_url == "https://www.economist.com/":
             self.parse_article('h1', None, None, 'p', 'class', 'article__description')
-        elif source_url == "https://www.bbc.com":
+
+        elif source_url == "https://www.bbc.com/news":
             try:
                 self.parse_article('h1', 'class', 'css-1c1994u-StyledHeading e1fj1fc10', 'p', None, None)
                 if self.headline == None or self.summary == None:
                     self.parse_article('div', 'class', 'article-headline__text b-reith-sans-font b-font-weight-300', 'div', 'class', 'article__intro')
+
             except:
                     self.headline = None
                     self.summary= None
-        else:
-            print("WHoops")
 
 
 
@@ -92,11 +100,30 @@ class Article:
                 self.headline = None
                 self.summary = None
 
-def upload_mongo(list_of_articles, collection):
+def upload_to_mongo(list_of_articles, collection):
     for article in list_of_articles:
         if article.headline == None or article.summary == None:
-            del(article)
+            list_of_articles.remove(article)
     list_of_articles = Queue(list_of_articles)
     for inputted_article in collection.find():
         articlez = list_of_articles.dequeue()
         collection.update_one(inputted_article, {'$set': {'Headline': articlez.headline, 'Info':articlez.summary,'Link':articlez.url}})
+
+def parse_sources():
+    sources = ['http://www.nytimes.com/', 'https://www.reuters.com/', 'https://www.wired.com', 'https://www.economist.com/', 'https://www.bbc.com/news']
+
+    for source in sources:
+        index = sources.index(source)
+        source_obj = Source(source)
+        list_of_article_urls = source_obj.articles
+        list_of_articles = []
+
+        for url in list_of_article_urls:
+            article = Article(url, source)
+            list_of_articles.append(article)
+            print(article.url)
+            print(article.headline)
+            print(article.summary)
+            print("\n")
+
+        upload_to_mongo(list_of_articles, collections[index])

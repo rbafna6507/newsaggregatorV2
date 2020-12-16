@@ -21,3 +21,5 @@ executor = ThreadPoolExecutor (max_workers=None)
 def parse_sources_runner():
     executor.submit(parse_sources)
     return "blah"
+
+executor.submit(parse_sources)

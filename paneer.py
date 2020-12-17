@@ -67,6 +67,9 @@ class Article:
 
         elif source_url == "https://www.reuters.com/":
             self.parse_article('h1', 'class', 'Headline-headline-2FXIq Headline-black-OogpV ArticleHeader-headline-NlAqj', 'p', 'class', 'Paragraph-paragraph-2Bgue ArticleBody-para-TD_9x')
+            if self.headline == None or self.summary == None:
+                self.url = self.url.replace("https://www.reuters.com///www.reuters.com/", self.source_url)
+                self.parse_article('h1', 'class', 'Headline-headline-2FXIq Headline-black-OogpV ArticleHeader-headline-NlAqj', 'p', 'class', 'Paragraph-paragraph-2Bgue ArticleBody-para-TD_9x')
 
         elif source_url == "https://www.wired.com":
             self.parse_article('h1', None, None, 'div', 'class', 'content-header__dek')
@@ -103,7 +106,7 @@ class Article:
 
 def upload_to_mongo(list_of_articles, collection):
     for article in list_of_articles:
-        if article.headline == None or article.summary == None:
+        if article.headline == None or article.summary == None or article.headline is None or article.summary is None:
             list_of_articles.remove(article)
     list_of_articles = Queue(list_of_articles)
     for inputted_article in collection.find():
